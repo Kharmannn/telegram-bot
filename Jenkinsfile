@@ -39,7 +39,7 @@ pipeline {
                             --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
                             --domain=https://geheim.kharmannn.my.id \
                             --token=\$INFISICAL_TOKEN \
-                            -- docker-compose up -d --build
+                            -- docker compose up -d --build
                     """
                 }
             }
