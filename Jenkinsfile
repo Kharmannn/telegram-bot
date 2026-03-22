@@ -2,12 +2,11 @@ pipeline {
     agent any
 
     environment {
-        APP_DIR = '/opt/expense-bot'
-        COMPOSE_FILE = 'docker-compose.yml'
+        APP_DIR = '/opt/telegram-bot'
     }
 
     triggers {
-        pollSCM('* * * * *')  // check every minute
+        pollSCM('* * * * *')
     }
 
     stages {
@@ -20,13 +19,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh """
-                    # Sync code ke app directory
-                    rsync -av --exclude='.git' \
-                        --exclude='credentials/' \
-                        --exclude='.env' \
-                        ${WORKSPACE}/ ${APP_DIR}/
+                    mkdir -p ${APP_DIR}
+                    cp -r ${WORKSPACE}/. ${APP_DIR}/
+                    rm -rf ${APP_DIR}/.git ${APP_DIR}/credentials ${APP_DIR}/.env
 
-                    # Masuk ke app directory dan jalankan
                     cd ${APP_DIR}
                     infisical run --env=prod -- docker compose up -d --build
                 """
