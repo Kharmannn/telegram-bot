@@ -24,7 +24,7 @@ pipeline {
                     rm -rf ${APP_DIR}/.git ${APP_DIR}/credentials ${APP_DIR}/.env
 
                     cd ${APP_DIR}
-                    infisical run --env=prod -- docker compose up -d --build
+                    infisical run --env=prod --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 -- docker compose up -d --build
                 """
             }
         }
