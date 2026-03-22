@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        APP_DIR = '/opt/telegram-bot'
+        APP_DIR = '/opt/expense-bot'
     }
 
     triggers {
@@ -18,14 +18,18 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh """
-                    mkdir -p ${APP_DIR}
-                    cp -r ${WORKSPACE}/. ${APP_DIR}/
-                    rm -rf ${APP_DIR}/.git ${APP_DIR}/credentials ${APP_DIR}/.env
+                withCredentials([infisicalSecret(credentialsId: 'infisical-jenkins',
+                    projectSlug: 'telegram-bot',
+                    envSlug: 'prod')]) {
+                    sh """
+                        mkdir -p ${APP_DIR}
+                        cp -r ${WORKSPACE}/. ${APP_DIR}/
+                        rm -rf ${APP_DIR}/.git ${APP_DIR}/credentials ${APP_DIR}/.env
 
-                    cd ${APP_DIR}
-                    infisical run --env=prod --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 -- docker compose up -d --build
-                """
+                        cd ${APP_DIR}
+                        docker compose up -d --build
+                    """
+                }
             }
         }
     }
