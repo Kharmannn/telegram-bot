@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 
+
 def parse_input(text: str) -> dict | None:
     """
     Format yang diterima:
@@ -39,6 +40,7 @@ def parse_input(text: str) -> dict | None:
         "deskripsi": deskripsi,
         "nominal"  : nominal,
     }
+
 
 def parse_date(date_str: str) -> str | None:
     """Validasi dan normalisasi tanggal dd/mm/yyyy."""

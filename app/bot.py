@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 ALLOWED_IDS    = list(map(int, os.environ.get("ALLOWED_IDS", "").split(","))) if os.environ.get("ALLOWED_IDS") else []
+MEMBER_IDS     = list(map(int, os.environ.get("MEMBER_IDS", "").split(",")))  if os.environ.get("MEMBER_IDS")  else []
+ALL_ALLOWED    = ALLOWED_IDS + MEMBER_IDS
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
@@ -22,14 +24,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode="HTML"
     )
 
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     text    = update.message.text.strip()
 
-    if ALLOWED_IDS and chat_id not in ALLOWED_IDS:
+    # Cek whitelist
+    if ALL_ALLOWED and chat_id not in ALL_ALLOWED:
         await update.message.reply_text("⛔ Kamu tidak punya akses.")
         return
 
+    # Parse input
     parsed = parse_input(text)
     if not parsed:
         await update.message.reply_text(
@@ -40,8 +45,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
+    # Simpan ke sheet
     try:
-        result = append_to_sheet(parsed["tanggal"], parsed["deskripsi"], parsed["nominal"])
+        result = append_to_sheet(parsed["tanggal"], parsed["deskripsi"], parsed["nominal"], chat_id)
         nominal_fmt = f"Rp {parsed['nominal']:,.0f}".replace(",", ".")
         await update.message.reply_text(
             f"✅ Tersimpan!\n\n"
@@ -55,13 +61,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error(f"Error saving to sheet: {e}")
         await update.message.reply_text("❌ Gagal menyimpan ke sheet. Cek log bot.")
 
-async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
-    from telegram.error import NetworkError, TimedOut
-    if isinstance(context.error, (NetworkError, TimedOut)):
-        logger.debug(f"Network hiccup (auto-retry): {context.error}")
-    else:
-        logger.error(f"Unexpected error: {context.error}", exc_info=context.error)
-
 def main():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
@@ -69,7 +68,6 @@ def main():
 
     logger.info("Bot started...")
     app.run_polling(drop_pending_updates=True)  # drop_pending_updates = anti loop!
-    app.add_error_handler(error_handler)
 
 if __name__ == "__main__":
     main()
