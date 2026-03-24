@@ -22,12 +22,12 @@ pipeline {
                             --domain=\$INFISICAL_DOMAIN \
                             --plain --silent)
 
-                        VPS_HOST=\$(infisical secrets get VPS_HOST --env=production \
+                        VPS_HOST=\$(infisical secrets get VPS_HOST --env=prod \
                             --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
                             --domain=\$INFISICAL_DOMAIN \
                             --token=\$INFISICAL_TOKEN --plain)
 
-                        VPS_USER=\$(infisical secrets get VPS_USER --env=production \
+                        VPS_USER=\$(infisical secrets get VPS_USER --env=prod \
                             --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
                             --domain=\$INFISICAL_DOMAIN \
                             --token=\$INFISICAL_TOKEN --plain)
@@ -55,7 +55,7 @@ pipeline {
                                 --domain=\$INFISICAL_DOMAIN \
                                 --plain --silent)
 
-                            infisical run --env=production \
+                            infisical run --env=prod \
                                 --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
                                 --domain=\$INFISICAL_DOMAIN \
                                 --token=\$INFISICAL_TOKEN \
