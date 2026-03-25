@@ -59,7 +59,7 @@ pipeline {
 
                             # 📦 Clone or pull
                             
-                            if [ -d "$APP_DIR/.git" ]; then
+                            if [ -d "\$APP_DIR/.git" ]; then
                                 echo "📥 Syncing repository..."
                                 cd "\$APP_DIR"
                                 git fetch origin
