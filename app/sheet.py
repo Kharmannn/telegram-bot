@@ -50,6 +50,31 @@ def get_col_start(chat_id: int) -> int:
         return COL_MEMBER  # E
     return COL_OWNER       # A
 
+def get_total_expenditure(tanggal: str, chat_id: int) -> int:
+    service = get_service()
+    sheet_name = sheet_name_from_date(tanggal)
+    col_start = get_col_start(chat_id)
+    nominal_col = col_letter(col_start + 2)  # C or G
+
+    try:
+        result = service.spreadsheets().values().get(
+            spreadsheetId=SPREADSHEET_ID,
+            range=f"{sheet_name}!{nominal_col}:{nominal_col}"
+        ).execute()
+
+        values = result.get("values", [])
+        total = 0
+
+        for row in values[1:]:  # skip header
+            if row and row[0].strip():
+                try:
+                    total += int(float(row[0]))
+                except ValueError:
+                    pass
+
+        return total
+    except Exception:
+        return 0
 
 def ensure_sheet_exists(service, sheet_name: str):
     """Buat tab baru kalau belum ada, lengkap dengan header A-C dan E-G."""

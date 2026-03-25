@@ -2,7 +2,7 @@ import logging
 import os
 from telegram import Update
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
-from sheet import append_to_sheet
+from sheet import append_to_sheet, get_total_expenditure
 from parser import parse_input
 
 logging.basicConfig(
@@ -49,11 +49,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         result = append_to_sheet(parsed["tanggal"], parsed["deskripsi"], parsed["nominal"], chat_id)
         nominal_fmt = f"Rp {parsed['nominal']:,.0f}".replace(",", ".")
+        total = get_total_expenditure(parsed["tanggal"], chat_id)
+        total_fmt = f"Rp {total:,.0f}".replace(",", ".")
         await update.message.reply_text(
             f"✅ Tersimpan!\n\n"
             f"📅 <b>{parsed['tanggal']}</b>\n"
             f"📝 {parsed['deskripsi']}\n"
             f"💰 {nominal_fmt}\n\n"
+            f"📊 Total pengeluaran bulan ini: <b>{total_fmt}</b>\n\n"
             f"<i>{result}</i>",
             parse_mode="HTML"
         )
