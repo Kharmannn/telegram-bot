@@ -32,7 +32,7 @@ pipeline {
                             --domain=\$INFISICAL_DOMAIN \
                             --token=\$INFISICAL_TOKEN --plain)
 
-                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_HOST << 'ENDSSH'
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_HOST << ENDSSH
                             set -e
                             APP_DIR=\$HOME/projects/telegram-bot
 
@@ -55,12 +55,17 @@ pipeline {
                                 --domain=$INFISICAL_DOMAIN \
                                 --plain --silent)
 
-                            infisical run --env=prod \
+                            export INFISICAL_TOKEN=$INFISICAL_TOKEN
+
+                            infisical export \
+                                --env=prod \
                                 --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
                                 --domain=$INFISICAL_DOMAIN \
-                                --token=\$INFISICAL_TOKEN \
-                                -- docker compose up -d --build
-                    ENDSSH
+                                > .env
+
+                            docker compose up -d --build
+                            rm -f .env
+ENDSSH
                     """
                 }
             }
