@@ -43,7 +43,7 @@ pipeline {
                         "INFISICAL_CLIENT_ID='\$INFISICAL_CLIENT_ID' \\
                          INFISICAL_CLIENT_SECRET='\$INFISICAL_CLIENT_SECRET' \\
                          INFISICAL_DOMAIN='\$INFISICAL_DOMAIN' \\
-                         bash -s" << 'ENDSSH'
+                         bash -s" << ENDSSH
 
                             set -e
 

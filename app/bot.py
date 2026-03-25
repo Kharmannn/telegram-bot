@@ -55,7 +55,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"✅ Tersimpan!\n\n"
             f"📅 <b>{parsed['tanggal']}</b>\n"
             f"📝 {parsed['deskripsi']}\n"
-            f"💰 {nominal_fmt}\n\n"
+            f"💰 {nominal_fmt}\n"
             f"📊 Total pengeluaran bulan ini: <b>{total_fmt}</b>\n\n"
             f"<i>{result}</i>",
             parse_mode="HTML"
