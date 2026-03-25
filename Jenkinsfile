@@ -32,32 +32,32 @@ pipeline {
                             --domain=\$INFISICAL_DOMAIN \
                             --token=\$INFISICAL_TOKEN --plain)
 
-                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_HOST << ENDSSH
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_HOST << 'ENDSSH'
                             set -e
+                            APP_DIR=\$HOME/projects/telegram-bot
 
-                            APP_DIR=\\\$HOME/projects/telegram-bot
-
-                            if [ -d "\\\$APP_DIR/.git" ]; then
-                                echo "Repo exists, pulling..."
-                                cd \\\$APP_DIR && git pull origin main
+                            if [ -d "\$APP_DIR/.git" ]; then
+                                echo "Pulling..."
+                                cd \$APP_DIR && git pull origin main
                             else
-                                echo "Cloning repo..."
-                                mkdir -p \\\$HOME/projects
-                                git clone git@github.com:Kharmannn/telegram-bot.git \\\$APP_DIR
+                                echo "Cloning..."
+                                mkdir -p \$HOME/projects
+                                rm -rf \$APP_DIR
+                                git clone git@github.com:Kharmannn/telegram-bot.git \$APP_DIR
                             fi
 
-                            cd \\\$APP_DIR
+                            cd \$APP_DIR
 
                             INFISICAL_TOKEN=\$(infisical login \
                                 --method=universal-auth \
-                                --client-id=\$INFISICAL_CLIENT_ID \
-                                --client-secret=\$INFISICAL_CLIENT_SECRET \
-                                --domain=\$INFISICAL_DOMAIN \
+                                --client-id=$INFISICAL_CLIENT_ID \
+                                --client-secret=$INFISICAL_CLIENT_SECRET \
+                                --domain=$INFISICAL_DOMAIN \
                                 --plain --silent)
 
                             infisical run --env=prod \
                                 --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
-                                --domain=\$INFISICAL_DOMAIN \
+                                --domain=$INFISICAL_DOMAIN \
                                 --token=\$INFISICAL_TOKEN \
                                 -- docker compose up -d --build
                     ENDSSH
