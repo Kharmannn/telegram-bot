@@ -50,17 +50,17 @@ pipeline {
 
                             INFISICAL_TOKEN=\$(infisical login \
                                 --method=universal-auth \
-                                --client-id=$INFISICAL_CLIENT_ID \
-                                --client-secret=$INFISICAL_CLIENT_SECRET \
-                                --domain=$INFISICAL_DOMAIN \
+                                --client-id=\$INFISICAL_CLIENT_ID \
+                                --client-secret=\$INFISICAL_CLIENT_SECRET \
+                                --domain=\$INFISICAL_DOMAIN \
                                 --plain --silent)
 
-                            export INFISICAL_TOKEN=$INFISICAL_TOKEN
+                            export INFISICAL_TOKEN=\$INFISICAL_TOKEN
 
                             infisical export \
                                 --env=prod \
                                 --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
-                                --domain=$INFISICAL_DOMAIN \
+                                --domain=\$INFISICAL_DOMAIN \
                                 > .env
 
                             docker compose up -d --build
