@@ -17,7 +17,7 @@ pipeline {
                     sh """
                         set -e
 
-                        # 🔐 Login to Infisical (Jenkins side)
+                        # 🔐 Login to Infisical (Jenkins)
                         INFISICAL_TOKEN=\$(infisical login \
                             --method=universal-auth \
                             --client-id=\$INFISICAL_CLIENT_ID \
@@ -25,7 +25,7 @@ pipeline {
                             --domain=\$INFISICAL_DOMAIN \
                             --plain --silent)
 
-                        # 🌐 Get VPS credentials
+                        # 🌐 Get VPS info
                         VPS_HOST=\$(infisical secrets get VPS_HOST --env=prod \
                             --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
                             --domain=\$INFISICAL_DOMAIN \
@@ -38,7 +38,6 @@ pipeline {
 
                         echo "🚀 Connecting to VPS..."
 
-                        # 🔑 SSH into VPS
                         ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_HOST \\
                         "INFISICAL_CLIENT_ID='\$INFISICAL_CLIENT_ID' \\
                          INFISICAL_CLIENT_SECRET='\$INFISICAL_CLIENT_SECRET' \\
@@ -50,15 +49,14 @@ pipeline {
                             echo "👤 USER: \$USER"
                             echo "🏠 HOME: \$HOME"
 
-                            # ✅ FIXED: Use proper user directory (NOT /root)
-                            APP_DIR="/home/\$USER/projects/telegram-bot"
+                            # ✅ FIX: use HOME instead of USER
+                            APP_DIR="\$HOME/projects/telegram-bot"
 
                             echo "📁 App directory: \$APP_DIR"
 
-                            mkdir -p "/home/\$USER/projects"
+                            mkdir -p "\$HOME/projects"
 
-                            # 📦 Clone or pull
-                            
+                            # ✅ CLEAN repo sync
                             if [ -d "\$APP_DIR/.git" ]; then
                                 echo "📥 Syncing repository..."
                                 cd "\$APP_DIR"
@@ -71,7 +69,7 @@ pipeline {
                                 cd "\$APP_DIR"
                             fi
 
-                            # 🔐 Login to Infisical (VPS side)
+                            # 🔐 Login to Infisical (VPS)
                             INFISICAL_TOKEN=\$(infisical login \
                                 --method=universal-auth \
                                 --client-id="\$INFISICAL_CLIENT_ID" \
@@ -81,18 +79,21 @@ pipeline {
 
                             export INFISICAL_TOKEN="\$INFISICAL_TOKEN"
 
-                            echo "🔐 Exporting secrets to .env..."
+                            echo "🔐 Exporting secrets..."
 
-                            # ✅ CLEAN: use infisical export
+                            # ✅ use export (clean)
                             infisical export \
                                 --env=prod \
                                 --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
                                 --domain="\$INFISICAL_DOMAIN" \
                                 > .env
 
-                            echo "🐳 Starting Docker..."
+                            echo "🐳 Running Docker..."
 
                             docker compose up -d --build
+
+                            # ✅ fix permissions (important)
+                            sudo chown -R \$USER:\$USER "\$APP_DIR"
 
                             echo "🧹 Cleaning .env..."
                             rm -f .env
