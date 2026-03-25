@@ -61,7 +61,7 @@ pipeline {
                             
                             if [ -d "$APP_DIR/.git" ]; then
                                 echo "📥 Syncing repository..."
-                                cd "$APP_DIR"
+                                cd "\$APP_DIR"
                                 git fetch origin
                                 git reset --hard origin/main
                             else
