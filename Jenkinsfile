@@ -58,9 +58,12 @@ pipeline {
                             mkdir -p "/home/\$USER/projects"
 
                             # 📦 Clone or pull
-                            if [ -d "\$APP_DIR/.git" ]; then
-                                echo "📥 Pulling latest changes..."
-                                cd "\$APP_DIR" && git pull origin main
+                            
+                            if [ -d "$APP_DIR/.git" ]; then
+                                echo "📥 Syncing repository..."
+                                cd "$APP_DIR"
+                                git fetch origin
+                                git reset --hard origin/main
                             else
                                 echo "📦 Cloning repository..."
                                 rm -rf "\$APP_DIR"
