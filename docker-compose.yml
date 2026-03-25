@@ -3,7 +3,6 @@ services:
     build: .
     container_name: expense-bot
     restart: unless-stopped
-    env_file: .env
     volumes:
       - ./credentials:/credentials:ro
     logging:
