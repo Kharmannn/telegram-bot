@@ -50,31 +50,33 @@ def get_col_start(chat_id: int) -> int:
         return COL_MEMBER  # E
     return COL_OWNER       # A
 
-def get_total_expenditure(tanggal: str, chat_id: int) -> int:
-    service = get_service()
-    sheet_name = sheet_name_from_date(tanggal)
-    col_start = get_col_start(chat_id)
-    nominal_col = col_letter(col_start + 2)  # C or G
 
+def get_total_expenditure(tanggal: str, chat_id: int) -> int:
+    """Hitung total nominal di sheet bulan ini untuk user tertentu."""
     try:
+        service     = get_service()
+        sheet_name  = sheet_name_from_date(tanggal)
+        col_start   = get_col_start(chat_id)
+        nominal_col = col_letter(col_start + 2)  # C untuk owner, G untuk member
+
         result = service.spreadsheets().values().get(
             spreadsheetId=SPREADSHEET_ID,
-            range=f"{sheet_name}!{nominal_col}:{nominal_col}"
+            range=f"{sheet_name}!{nominal_col}2:{nominal_col}1000"  # skip header row 1
         ).execute()
 
         values = result.get("values", [])
-        total = 0
-
-        for row in values[1:]:  # skip header
+        total  = 0
+        for row in values:
             if row and row[0].strip():
                 try:
-                    total += int(float(row[0]))
+                    total += int(float(str(row[0]).replace(",", "")))
                 except ValueError:
                     pass
-
         return total
-    except Exception:
+    except Exception as e:
+        logger.warning(f"get_total_expenditure error: {e}")
         return 0
+
 
 def ensure_sheet_exists(service, sheet_name: str):
     """Buat tab baru kalau belum ada, lengkap dengan header A-C dan E-G."""
@@ -126,7 +128,8 @@ def get_last_row_for_col(service, sheet_name: str, col_start: int) -> int:
             range=f"{sheet_name}!{col}:{col}"
         ).execute()
         values = result.get("values", [])
-        return len(values) + 1
+        # Minimal row 2 (row 1 = header)
+        return max(len(values) + 1, 2)
     except Exception:
         return 2
 
