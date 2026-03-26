@@ -26,12 +26,12 @@ pipeline {
                             --plain --silent)
 
                         # 🌐 Get VPS info
-                        VPS_HOST=\$(infisical secrets get VPS_HOST --env=production \
+                        VPS_HOST=\$(infisical secrets get VPS_HOST --env=prod \
                             --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
                             --domain=\$INFISICAL_DOMAIN \
                             --token=\$INFISICAL_TOKEN --plain)
 
-                        VPS_USER=\$(infisical secrets get VPS_USER --env=production \
+                        VPS_USER=\$(infisical secrets get VPS_USER --env=prod \
                             --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
                             --domain=\$INFISICAL_DOMAIN \
                             --token=\$INFISICAL_TOKEN --plain)
@@ -39,57 +39,57 @@ pipeline {
                         echo "🚀 Connecting to \$VPS_USER@\$VPS_HOST..."
 
                         ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$VPS_USER@\$VPS_HOST << ENDSSH
-export INFISICAL_CLIENT_ID="\$INFISICAL_CLIENT_ID"
-export INFISICAL_CLIENT_SECRET="\$INFISICAL_CLIENT_SECRET"
-export INFISICAL_DOMAIN="\$INFISICAL_DOMAIN"
+                            export INFISICAL_CLIENT_ID="\$INFISICAL_CLIENT_ID"
+                            export INFISICAL_CLIENT_SECRET="\$INFISICAL_CLIENT_SECRET"
+                            export INFISICAL_DOMAIN="\$INFISICAL_DOMAIN"
 
-set -e
+                            set -e
 
-APP_DIR="/home/ubuntu/projects/telegram-bot"
+                            APP_DIR="/home/ubuntu/projects/telegram-bot"
 
-echo "📁 App directory: \$APP_DIR"
+                            echo "📁 App directory: \$APP_DIR"
 
-mkdir -p "/home/ubuntu/projects"
+                            mkdir -p "/home/ubuntu/projects"
 
-if [ -d "\$APP_DIR/.git" ]; then
-    echo "📥 Syncing repository..."
-    cd "\$APP_DIR"
-    git fetch origin
-    git reset --hard origin/main
-else
-    echo "📦 Cloning repository..."
-    rm -rf "\$APP_DIR"
-    git clone git@github.com:Kharmannn/telegram-bot.git "\$APP_DIR"
-    cd "\$APP_DIR"
-fi
+                            if [ -d "\$APP_DIR/.git" ]; then
+                                echo "📥 Syncing repository..."
+                                cd "\$APP_DIR"
+                                git fetch origin
+                                git reset --hard origin/main
+                            else
+                                echo "📦 Cloning repository..."
+                                rm -rf "\$APP_DIR"
+                                git clone git@github.com:Kharmannn/telegram-bot.git "\$APP_DIR"
+                                cd "\$APP_DIR"
+                            fi
 
-cd "\$APP_DIR"
+                            cd "\$APP_DIR"
 
-INFISICAL_TOKEN=\$(infisical login \
-    --method=universal-auth \
-    --client-id="\$INFISICAL_CLIENT_ID" \
-    --client-secret="\$INFISICAL_CLIENT_SECRET" \
-    --domain="\$INFISICAL_DOMAIN" \
-    --plain --silent)
+                            INFISICAL_TOKEN=\$(infisical login \
+                                --method=universal-auth \
+                                --client-id="\$INFISICAL_CLIENT_ID" \
+                                --client-secret="\$INFISICAL_CLIENT_SECRET" \
+                                --domain="\$INFISICAL_DOMAIN" \
+                                --plain --silent)
 
-echo "🔐 Exporting secrets..."
+                            echo "🔐 Exporting secrets..."
 
-infisical export \
-    --env=production \
-    --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
-    --domain="\$INFISICAL_DOMAIN" \
-    --token="\$INFISICAL_TOKEN" \
-    --format=dotenv > .env
+                            infisical export \
+                                --env=prod \
+                                --projectId=3a3eab5c-0d3b-40e1-967d-23c7bd128670 \
+                                --domain="\$INFISICAL_DOMAIN" \
+                                --token="\$INFISICAL_TOKEN" \
+                                --format=dotenv > .env
 
-echo "🐳 Running Docker..."
+                            echo "🐳 Running Docker..."
 
-docker compose up -d --build
+                            docker compose up -d --build
 
-echo "🧹 Cleaning .env..."
-rm -f .env
+                            echo "🧹 Cleaning .env..."
+                            rm -f .env
 
-echo "✅ Deployment finished!"
-ENDSSH
+                            echo "✅ Deployment finished!"
+                            ENDSSH
                     """
                 }
             }
